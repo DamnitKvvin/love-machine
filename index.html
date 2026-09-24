@@ -4,62 +4,183 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Our Little Love Machine 💗</title>
+    <title>Our Little Love Machine 💙</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <main class="app">
+    <!-- ======================================================
+         IDENTITY SCREEN
+         ====================================================== -->
 
-        <section class="header">
-            <div class="heart-icon">💗</div>
+    <div class="identity-overlay" id="identityOverlay">
+
+        <div class="identity-card">
+
+            <div class="identity-icon">
+                💙
+            </div>
 
             <h1>Our Little Love Machine</h1>
 
             <p>
-                Distance can't stop me from sending you a little love.
+                Before we start sending some love...
+                <br>
+                who are you?
             </p>
+
+            <div class="identity-buttons">
+
+                <button
+                    class="identity-button"
+                    data-person="Aidan"
+                >
+                    <span>💙</span>
+                    Aidan
+                </button>
+
+                <button
+                    class="identity-button"
+                    data-person="Boyfriend"
+                >
+                    <span>💙</span>
+                    Boyfriend
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ======================================================
+         MAIN APP
+         ====================================================== -->
+
+    <main class="app" id="app">
+
+        <!-- HEADER -->
+
+        <section class="header">
+
+            <div class="heart-icon">
+                💙
+            </div>
+
+            <h1>
+                Our Little Love Machine
+            </h1>
+
+            <p>
+                Distance can't stop us from sending
+                a little love.
+            </p>
+
+            <div class="current-user">
+                Sending love as
+                <strong id="currentUser">
+                    —
+                </strong>
+            </div>
+
         </section>
 
+
+        <!-- COUNTERS -->
 
         <section class="counters">
 
             <div class="counter-card">
-                <span class="counter-icon">🫂</span>
-                <span class="counter-number" id="hugCount">0</span>
-                <span class="counter-label">Hugs Sent</span>
+
+                <span class="counter-icon">
+                    🫂
+                </span>
+
+                <span
+                    class="counter-number"
+                    id="hugCount"
+                >
+                    0
+                </span>
+
+                <span class="counter-label">
+                    Hugs Sent
+                </span>
+
             </div>
 
+
             <div class="counter-card">
-                <span class="counter-icon">💋</span>
-                <span class="counter-number" id="kissCount">0</span>
-                <span class="counter-label">Kisses Sent</span>
+
+                <span class="counter-icon">
+                    💋
+                </span>
+
+                <span
+                    class="counter-number"
+                    id="kissCount"
+                >
+                    0
+                </span>
+
+                <span class="counter-label">
+                    Kisses Sent
+                </span>
+
             </div>
 
         </section>
 
+
+        <!-- ACTION BUTTONS -->
 
         <section class="actions">
 
-            <button class="love-button hug-button" id="hugButton">
-                <span class="button-icon">🫂</span>
-                <span>Send Me A Hug</span>
+            <button
+                class="love-button hug-button"
+                id="hugButton"
+            >
+                <span class="button-icon">
+                    🫂
+                </span>
+
+                <span>
+                    Send A Hug
+                </span>
             </button>
 
-            <button class="love-button kiss-button" id="kissButton">
-                <span class="button-icon">💋</span>
-                <span>Send Me A Kiss</span>
+
+            <button
+                class="love-button kiss-button"
+                id="kissButton"
+            >
+                <span class="button-icon">
+                    💋
+                </span>
+
+                <span>
+                    Send A Kiss
+                </span>
             </button>
 
         </section>
 
 
-        <section class="message-box" id="messageBox">
+        <!-- MESSAGE -->
 
-            <div class="message-icon" id="messageIcon">
-                💗
+        <section
+            class="message-box"
+            id="messageBox"
+        >
+
+            <div
+                class="message-icon"
+                id="messageIcon"
+            >
+                💙
             </div>
 
             <h2 id="messageTitle">
@@ -73,23 +194,35 @@
         </section>
 
 
+        <!-- RECENT ACTIVITY -->
+
         <section class="recent">
 
             <div class="section-title">
                 Recent Love 💌
             </div>
 
-            <div id="recentActions" class="recent-actions">
+            <div
+                id="recentActions"
+                class="recent-actions"
+            >
+
                 <div class="empty-state">
                     No hugs or kisses yet...
                 </div>
+
             </div>
 
         </section>
 
 
+        <!-- FOOTER -->
+
         <footer>
-            Made with a little bit of code and a lot of love. ❤️
+
+            Made with a little bit of code
+            and a lot of love. 💙
+
         </footer>
 
     </main>
