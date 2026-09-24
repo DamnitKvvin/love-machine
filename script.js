@@ -4,6 +4,26 @@
 
 
 /* ============================================================
+   SUPABASE CONFIGURATION
+   ============================================================ */
+
+// Replace these with your actual Supabase project values.
+
+const SUPABASE_URL =
+    "YOUR_SUPABASE_PROJECT_URL";
+
+const SUPABASE_KEY =
+    "YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY";
+
+
+const supabase =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+/* ============================================================
    CONFIGURATION
    ============================================================ */
 
@@ -11,6 +31,9 @@ const PEOPLE = {
     AIDAN: "Aidan",
     BOYFRIEND: "Sam"
 };
+
+const TABLE_NAME = "love_actions";
+
 
 /* ============================================================
    ELEMENTS
@@ -60,20 +83,7 @@ const recentActions =
 let currentUser =
     localStorage.getItem("loveMachineUser");
 
-let hugCount =
-    Number(
-        localStorage.getItem("hugCount") || 0
-    );
-
-let kissCount =
-    Number(
-        localStorage.getItem("kissCount") || 0
-    );
-
-let actions =
-    JSON.parse(
-        localStorage.getItem("loveActions") || "[]"
-    );
+let actions = [];
 
 
 /* ============================================================
@@ -110,12 +120,54 @@ identityButtons.forEach(button => {
 });
 
 
-function initializeUser() {
+async function initializeUser() {
 
     currentUserElement.textContent =
         currentUser;
 
     identityOverlay.classList.add("hidden");
+
+    await loadActions();
+
+    subscribeToActions();
+
+}
+
+
+/* ============================================================
+   LOAD ACTIONS
+   ============================================================ */
+
+async function loadActions() {
+
+    const { data, error } =
+        await supabase
+            .from(TABLE_NAME)
+            .select("*")
+            .order("created_at", {
+                ascending: false
+            });
+
+
+    if (error) {
+
+        console.error(
+            "Could not load love actions:",
+            error
+        );
+
+        showMessage(
+            "⚠️",
+            "Something went wrong",
+            "I couldn't load our love history."
+        );
+
+        return;
+
+    }
+
+
+    actions = data || [];
 
     updateCounters();
 
@@ -128,22 +180,9 @@ function initializeUser() {
    HUG
    ============================================================ */
 
-hugButton.addEventListener("click", () => {
+hugButton.addEventListener("click", async () => {
 
-    hugCount++;
-
-    localStorage.setItem(
-        "hugCount",
-        hugCount
-    );
-
-    addAction("hug");
-
-    showMessage(
-        "🫂",
-        "Hug sent!",
-        `A hug from ${currentUser}, delivered across the distance.`
-    );
+    await sendLove("hug");
 
 });
 
@@ -152,24 +191,226 @@ hugButton.addEventListener("click", () => {
    KISS
    ============================================================ */
 
-kissButton.addEventListener("click", () => {
+kissButton.addEventListener("click", async () => {
 
-    kissCount++;
-
-    localStorage.setItem(
-        "kissCount",
-        kissCount
-    );
-
-    addAction("kiss");
-
-    showMessage(
-        "💋",
-        "Kiss sent!",
-        `A little kiss from ${currentUser}, delivered just for you.`
-    );
+    await sendLove("kiss");
 
 });
+
+
+/* ============================================================
+   SEND LOVE
+   ============================================================ */
+
+async function sendLove(type) {
+
+    if (!currentUser) {
+
+        return;
+
+    }
+
+
+    // Prevent accidental double-clicks.
+
+    const button =
+        type === "hug"
+            ? hugButton
+            : kissButton;
+
+
+    button.disabled = true;
+
+
+    const { data, error } =
+        await supabase
+            .from(TABLE_NAME)
+            .insert({
+                type: type,
+                sender: currentUser
+            })
+            .select()
+            .single();
+
+
+    button.disabled = false;
+
+
+    if (error) {
+
+        console.error(
+            "Could not send love:",
+            error
+        );
+
+        showMessage(
+            "⚠️",
+            "Couldn't send it",
+            "Something went wrong sending your love."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Add the newly-created action immediately.
+
+       Realtime will also notify this page, but we don't
+       want to wait for that notification before updating
+       the UI.
+    */
+
+    addActionToState(data);
+
+
+    /* ========================================================
+       SHOW MESSAGE
+       ======================================================== */
+
+    if (type === "hug") {
+
+        showMessage(
+            "🫂",
+            "Hug sent!",
+            `A hug from ${currentUser}, delivered across the distance.`
+        );
+
+    } else {
+
+        showMessage(
+            "💋",
+            "Kiss sent!",
+            `A little kiss from ${currentUser}, delivered just for you.`
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   ADD ACTION TO STATE
+   ============================================================ */
+
+function addActionToState(action) {
+
+    // Prevent duplicates.
+
+    const alreadyExists =
+        actions.some(
+            existingAction =>
+                existingAction.id === action.id
+        );
+
+
+    if (alreadyExists) {
+
+        return;
+
+    }
+
+
+    actions.unshift(action);
+
+
+    // Only keep the most recent 10 in the frontend.
+
+    actions =
+        actions.slice(0, 10);
+
+
+    updateCounters();
+
+    renderRecent();
+
+}
+
+
+/* ============================================================
+   REALTIME
+   ============================================================ */
+
+function subscribeToActions() {
+
+    supabase
+        .channel("love-actions")
+        .on(
+            "postgres_changes",
+            {
+                event: "INSERT",
+                schema: "public",
+                table: TABLE_NAME
+            },
+            payload => {
+
+                console.log(
+                    "New love received:",
+                    payload.new
+                );
+
+
+                addActionToState(
+                    payload.new
+                );
+
+
+                /*
+                   If somebody else sent it, show a
+                   slightly different message.
+                */
+
+                if (
+                    payload.new.sender !== currentUser
+                ) {
+
+                    if (
+                        payload.new.type === "hug"
+                    ) {
+
+                        showMessage(
+                            "🫂",
+                            "You got a hug!",
+                            `${payload.new.sender} just sent you a hug.`
+                        );
+
+                    } else {
+
+                        showMessage(
+                            "💋",
+                            "You got a kiss!",
+                            `${payload.new.sender} just sent you a kiss.`
+                        );
+
+                    }
+
+                }
+
+            }
+        )
+        .subscribe(
+            (status, error) => {
+
+                console.log(
+                    "Realtime status:",
+                    status
+                );
+
+
+                if (error) {
+
+                    console.error(
+                        "Realtime error:",
+                        error
+                    );
+
+                }
+
+            }
+        );
+
+}
 
 
 /* ============================================================
@@ -178,11 +419,25 @@ kissButton.addEventListener("click", () => {
 
 function updateCounters() {
 
+    const hugs =
+        actions.filter(
+            action =>
+                action.type === "hug"
+        ).length;
+
+
+    const kisses =
+        actions.filter(
+            action =>
+                action.type === "kiss"
+        ).length;
+
+
     hugCountElement.textContent =
-        hugCount;
+        hugs;
 
     kissCountElement.textContent =
-        kissCount;
+        kisses;
 
 }
 
@@ -216,43 +471,6 @@ function showMessage(
 
 
 /* ============================================================
-   ACTIVITY
-   ============================================================ */
-
-function addAction(type) {
-
-    const action = {
-
-        type: type,
-
-        sender: currentUser,
-
-        timestamp: Date.now()
-
-    };
-
-
-    actions.unshift(action);
-
-
-    // Keep the latest 10 actions.
-
-    actions =
-        actions.slice(0, 10);
-
-
-    localStorage.setItem(
-        "loveActions",
-        JSON.stringify(actions)
-    );
-
-
-    renderRecent();
-
-}
-
-
-/* ============================================================
    RECENT ACTIVITY
    ============================================================ */
 
@@ -273,12 +491,14 @@ function renderRecent() {
 
     recentActions.innerHTML =
         actions
+            .slice(0, 10)
             .map(action => {
 
                 const icon =
                     action.type === "hug"
                         ? "🫂"
                         : "💋";
+
 
                 const label =
                     action.type === "hug"
@@ -291,15 +511,19 @@ function renderRecent() {
 
                         <span>
                             ${icon}
+
                             <strong>
-                                ${escapeHTML(action.sender)}
+                                ${escapeHTML(
+                                    action.sender
+                                )}
                             </strong>
+
                             ${label}
                         </span>
 
                         <span>
                             ${formatDate(
-                                action.timestamp
+                                action.created_at
                             )}
                         </span>
 
@@ -355,7 +579,7 @@ function formatDate(timestamp) {
 
 function escapeHTML(value) {
 
-    return value
+    return String(value)
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
