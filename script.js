@@ -4,50 +4,128 @@
 
 
 /* ============================================================
+   CONFIGURATION
+   ============================================================ */
+
+const PEOPLE = {
+    AIDAN: "Aidan",
+    BOYFRIEND: "Sam"
+};
+
+/* ============================================================
    ELEMENTS
    ============================================================ */
 
-const hugButton = document.getElementById("hugButton");
-const kissButton = document.getElementById("kissButton");
+const identityOverlay =
+    document.getElementById("identityOverlay");
 
-const hugCountElement = document.getElementById("hugCount");
-const kissCountElement = document.getElementById("kissCount");
+const identityButtons =
+    document.querySelectorAll(".identity-button");
 
-const messageBox = document.getElementById("messageBox");
-const messageIcon = document.getElementById("messageIcon");
-const messageTitle = document.getElementById("messageTitle");
-const messageText = document.getElementById("messageText");
+const currentUserElement =
+    document.getElementById("currentUser");
 
-const recentActions = document.getElementById("recentActions");
+const hugButton =
+    document.getElementById("hugButton");
+
+const kissButton =
+    document.getElementById("kissButton");
+
+const hugCountElement =
+    document.getElementById("hugCount");
+
+const kissCountElement =
+    document.getElementById("kissCount");
+
+const messageBox =
+    document.getElementById("messageBox");
+
+const messageIcon =
+    document.getElementById("messageIcon");
+
+const messageTitle =
+    document.getElementById("messageTitle");
+
+const messageText =
+    document.getElementById("messageText");
+
+const recentActions =
+    document.getElementById("recentActions");
 
 
 /* ============================================================
-   LOAD SAVED DATA
+   STATE
    ============================================================ */
 
-let hugCount = Number(
-    localStorage.getItem("hugCount") || 0
-);
+let currentUser =
+    localStorage.getItem("loveMachineUser");
 
-let kissCount = Number(
-    localStorage.getItem("kissCount") || 0
-);
+let hugCount =
+    Number(
+        localStorage.getItem("hugCount") || 0
+    );
 
-let actions = JSON.parse(
-    localStorage.getItem("loveActions") || "[]"
-);
+let kissCount =
+    Number(
+        localStorage.getItem("kissCount") || 0
+    );
+
+let actions =
+    JSON.parse(
+        localStorage.getItem("loveActions") || "[]"
+    );
 
 
 /* ============================================================
-   INITIALIZE
+   IDENTITY
    ============================================================ */
 
-updateCounters();
-renderRecent();
+if (currentUser) {
+
+    initializeUser();
+
+} else {
+
+    identityOverlay.classList.remove("hidden");
+
+}
+
+
+identityButtons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        currentUser =
+            button.dataset.person;
+
+        localStorage.setItem(
+            "loveMachineUser",
+            currentUser
+        );
+
+        initializeUser();
+
+    });
+
+});
+
+
+function initializeUser() {
+
+    currentUserElement.textContent =
+        currentUser;
+
+    identityOverlay.classList.add("hidden");
+
+    updateCounters();
+
+    renderRecent();
+
+}
 
 
 /* ============================================================
-   BUTTON EVENTS
+   HUG
    ============================================================ */
 
 hugButton.addEventListener("click", () => {
@@ -64,11 +142,15 @@ hugButton.addEventListener("click", () => {
     showMessage(
         "🫂",
         "Hug sent!",
-        "Wrapping you in the biggest virtual hug I can send."
+        `A hug from ${currentUser}, delivered across the distance.`
     );
 
 });
 
+
+/* ============================================================
+   KISS
+   ============================================================ */
 
 kissButton.addEventListener("click", () => {
 
@@ -84,7 +166,7 @@ kissButton.addEventListener("click", () => {
     showMessage(
         "💋",
         "Kiss sent!",
-        "One little kiss, delivered across the distance."
+        `A little kiss from ${currentUser}, delivered just for you.`
     );
 
 });
@@ -96,8 +178,11 @@ kissButton.addEventListener("click", () => {
 
 function updateCounters() {
 
-    hugCountElement.textContent = hugCount;
-    kissCountElement.textContent = kissCount;
+    hugCountElement.textContent =
+        hugCount;
+
+    kissCountElement.textContent =
+        kissCount;
 
 }
 
@@ -112,9 +197,14 @@ function showMessage(
     text
 ) {
 
-    messageIcon.textContent = icon;
-    messageTitle.textContent = title;
-    messageText.textContent = text;
+    messageIcon.textContent =
+        icon;
+
+    messageTitle.textContent =
+        title;
+
+    messageText.textContent =
+        text;
 
     messageBox.classList.remove("pop");
 
@@ -126,25 +216,36 @@ function showMessage(
 
 
 /* ============================================================
-   ACTION HISTORY
+   ACTIVITY
    ============================================================ */
 
 function addAction(type) {
 
     const action = {
+
         type: type,
+
+        sender: currentUser,
+
         timestamp: Date.now()
+
     };
+
 
     actions.unshift(action);
 
-    // Keep the last 10 actions.
-    actions = actions.slice(0, 10);
+
+    // Keep the latest 10 actions.
+
+    actions =
+        actions.slice(0, 10);
+
 
     localStorage.setItem(
         "loveActions",
         JSON.stringify(actions)
     );
+
 
     renderRecent();
 
@@ -152,7 +253,7 @@ function addAction(type) {
 
 
 /* ============================================================
-   RENDER RECENT ACTIONS
+   RECENT ACTIVITY
    ============================================================ */
 
 function renderRecent() {
@@ -166,51 +267,99 @@ function renderRecent() {
         `;
 
         return;
+
     }
 
 
-    recentActions.innerHTML = actions
-        .map(action => {
+    recentActions.innerHTML =
+        actions
+            .map(action => {
 
-            const icon =
-                action.type === "hug"
-                    ? "🫂"
-                    : "💋";
+                const icon =
+                    action.type === "hug"
+                        ? "🫂"
+                        : "💋";
 
-            const label =
-                action.type === "hug"
-                    ? "Hug sent"
-                    : "Kiss sent";
+                const label =
+                    action.type === "hug"
+                        ? "sent a hug"
+                        : "sent a kiss";
 
-            return `
-                <div class="recent-item">
-                    <span>
-                        ${icon} ${label}
-                    </span>
 
-                    <span>
-                        ${formatTime(action.timestamp)}
-                    </span>
-                </div>
-            `;
+                return `
+                    <div class="recent-item">
 
-        })
-        .join("");
+                        <span>
+                            ${icon}
+                            <strong>
+                                ${escapeHTML(action.sender)}
+                            </strong>
+                            ${label}
+                        </span>
+
+                        <span>
+                            ${formatDate(
+                                action.timestamp
+                            )}
+                        </span>
+
+                    </div>
+                `;
+
+            })
+            .join("");
 
 }
 
 
 /* ============================================================
-   TIME FORMATTER
+   DATE FORMAT
    ============================================================ */
 
-function formatTime(timestamp) {
+function formatDate(timestamp) {
 
-    const date = new Date(timestamp);
+    const date =
+        new Date(timestamp);
 
-    return date.toLocaleTimeString([], {
-        hour: "numeric",
-        minute: "2-digit"
+
+    const now =
+        new Date();
+
+
+    const sameDay =
+        date.toDateString() ===
+        now.toDateString();
+
+
+    if (sameDay) {
+
+        return date.toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit"
+        });
+
+    }
+
+
+    return date.toLocaleDateString([], {
+        month: "short",
+        day: "numeric"
     });
+
+}
+
+
+/* ============================================================
+   BASIC HTML ESCAPING
+   ============================================================ */
+
+function escapeHTML(value) {
+
+    return value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 
 }
