@@ -433,6 +433,186 @@ footer {
     animation: pop 0.35s ease;
 }
 
+/* ============================================================
+   IDENTITY SCREEN
+   ============================================================ */
+
+.identity-overlay {
+    position: fixed;
+    inset: 0;
+
+    z-index: 1000;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(59, 130, 246, 0.14),
+            transparent 55%
+        ),
+        rgba(4, 10, 18, 0.96);
+
+    backdrop-filter: blur(12px);
+
+    transition:
+        opacity 0.35s ease,
+        visibility 0.35s ease;
+}
+
+.identity-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.identity-card {
+    width: 100%;
+    max-width: 430px;
+
+    padding: 40px 30px;
+
+    text-align: center;
+
+    background:
+        linear-gradient(
+            145deg,
+            #102943,
+            #0a1b2e
+        );
+
+    border: 1px solid var(--border-strong);
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 25px 80px rgba(0, 0, 0, 0.5);
+
+    animation: identityAppear 0.45s ease;
+}
+
+.identity-icon {
+    font-size: 50px;
+
+    margin-bottom: 15px;
+
+    filter:
+        drop-shadow(
+            0 0 20px rgba(96, 165, 250, 0.35)
+        );
+}
+
+.identity-card h1 {
+    font-size: 26px;
+
+    margin-bottom: 10px;
+}
+
+.identity-card p {
+    color: var(--muted);
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    margin-bottom: 25px;
+}
+
+.identity-buttons {
+    display: grid;
+
+    gap: 10px;
+}
+
+.identity-button {
+    width: 100%;
+
+    border: 1px solid var(--border);
+
+    border-radius: 14px;
+
+    padding: 15px;
+
+    background: rgba(59, 130, 246, 0.08);
+
+    color: var(--text);
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
+}
+
+.identity-button:hover {
+    background: rgba(59, 130, 246, 0.18);
+
+    border-color: var(--border-strong);
+
+    transform: translateY(-2px);
+}
+
+.identity-button:active {
+    transform: scale(0.98);
+}
+
+.identity-button span {
+    margin-right: 7px;
+}
+
+
+/* ============================================================
+   CURRENT USER
+   ============================================================ */
+
+.current-user {
+    display: inline-block;
+
+    margin-top: 12px;
+
+    padding: 6px 11px;
+
+    border-radius: 999px;
+
+    background: rgba(59, 130, 246, 0.08);
+
+    border: 1px solid var(--border);
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+.current-user strong {
+    color: var(--blue-soft);
+}
+
+
+/* ============================================================
+   IDENTITY ANIMATION
+   ============================================================ */
+
+@keyframes identityAppear {
+
+    from {
+        opacity: 0;
+        transform: translateY(15px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+}
 
 /* ============================================================
    MOBILE
