@@ -1,5 +1,6 @@
 /* ============================================================
    OUR LITTLE LOVE MACHINE
+   Blue Monochrome Theme
    ============================================================ */
 
 * {
@@ -9,20 +10,30 @@
 }
 
 :root {
-    --background: #0f0b12;
-    --card: #19131d;
-    --card-light: #211923;
+    --background: #06101d;
+    --background-light: #09182a;
 
-    --text: #ffffff;
-    --muted: #aaa1ad;
+    --card: #0c1d31;
+    --card-light: #102943;
 
-    --pink: #ff6fae;
-    --pink-dark: #d94f8b;
+    --blue-dark: #12365a;
+    --blue: #3b82f6;
+    --blue-light: #60a5fa;
+    --blue-soft: #93c5fd;
 
-    --purple: #a879ff;
+    --text: #eff6ff;
+    --muted: #94a3b8;
 
-    --border: rgba(255, 255, 255, 0.08);
+    --border: rgba(96, 165, 250, 0.16);
+    --border-strong: rgba(96, 165, 250, 0.3);
+
+    --shadow: rgba(0, 0, 0, 0.3);
 }
+
+
+/* ============================================================
+   BODY
+   ============================================================ */
 
 body {
     min-height: 100vh;
@@ -32,11 +43,15 @@ body {
 
     background:
         radial-gradient(
-            circle at top,
-            rgba(255, 111, 174, 0.12),
-            transparent 40%
+            circle at 50% -10%,
+            rgba(59, 130, 246, 0.18),
+            transparent 45%
         ),
-        var(--background);
+        linear-gradient(
+            180deg,
+            var(--background-light),
+            var(--background)
+        );
 
     color: var(--text);
 
@@ -71,7 +86,11 @@ body {
 
 .heart-icon {
     font-size: 50px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+
+    filter: drop-shadow(
+        0 0 18px rgba(96, 165, 250, 0.35)
+    );
 
     animation: heartbeat 2s infinite;
 }
@@ -79,6 +98,8 @@ body {
 .header h1 {
     font-size: 32px;
     margin-bottom: 10px;
+
+    letter-spacing: -0.5px;
 }
 
 .header p {
@@ -100,9 +121,15 @@ body {
 }
 
 .counter-card {
-    background: var(--card);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(16, 41, 67, 0.95),
+            rgba(12, 29, 49, 0.95)
+        );
 
     border: 1px solid var(--border);
+
     border-radius: 18px;
 
     padding: 25px;
@@ -112,15 +139,34 @@ body {
     display: flex;
     flex-direction: column;
     gap: 5px;
+
+    box-shadow:
+        0 10px 30px var(--shadow);
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.counter-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
 }
 
 .counter-icon {
     font-size: 30px;
+
+    filter:
+        drop-shadow(
+            0 0 10px rgba(96, 165, 250, 0.25)
+        );
 }
 
 .counter-number {
-    font-size: 32px;
+    font-size: 34px;
     font-weight: 700;
+
+    color: var(--blue-soft);
 }
 
 .counter-label {
@@ -130,7 +176,7 @@ body {
 
 
 /* ============================================================
-   BUTTONS
+   ACTION BUTTONS
    ============================================================ */
 
 .actions {
@@ -141,7 +187,8 @@ body {
 }
 
 .love-button {
-    border: none;
+    border: 1px solid transparent;
+
     border-radius: 16px;
 
     padding: 18px;
@@ -155,17 +202,22 @@ body {
 
     transition:
         transform 0.15s ease,
-        filter 0.15s ease;
+        filter 0.15s ease,
+        box-shadow 0.15s ease;
 
     display: flex;
     justify-content: center;
     align-items: center;
+
     gap: 10px;
 }
 
 .love-button:hover {
     transform: translateY(-2px);
     filter: brightness(1.08);
+
+    box-shadow:
+        0 8px 25px rgba(59, 130, 246, 0.2);
 }
 
 .love-button:active {
@@ -173,19 +225,21 @@ body {
 }
 
 .hug-button {
-    background: linear-gradient(
-        135deg,
-        #ff6fae,
-        #e95796
-    );
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #3b82f6
+        );
 }
 
 .kiss-button {
-    background: linear-gradient(
-        135deg,
-        #a879ff,
-        #8058d6
-    );
+    background:
+        linear-gradient(
+            135deg,
+            #1d4ed8,
+            #60a5fa
+        );
 }
 
 .button-icon {
@@ -198,9 +252,15 @@ body {
    ============================================================ */
 
 .message-box {
-    background: var(--card);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(16, 41, 67, 0.95),
+            rgba(12, 29, 49, 0.95)
+        );
 
     border: 1px solid var(--border);
+
     border-radius: 20px;
 
     padding: 35px 25px;
@@ -213,8 +273,12 @@ body {
 
     display: flex;
     flex-direction: column;
+
     justify-content: center;
     align-items: center;
+
+    box-shadow:
+        0 10px 30px var(--shadow);
 }
 
 .message-icon {
@@ -230,11 +294,12 @@ body {
 .message-box p {
     color: var(--muted);
     font-size: 14px;
+    line-height: 1.5;
 }
 
 
 /* ============================================================
-   RECENT
+   RECENT ACTIVITY
    ============================================================ */
 
 .section-title {
@@ -242,6 +307,8 @@ body {
     font-weight: 600;
 
     margin-bottom: 10px;
+
+    color: var(--blue-soft);
 }
 
 .recent-actions {
@@ -254,6 +321,7 @@ body {
     background: var(--card);
 
     border: 1px solid var(--border);
+
     border-radius: 12px;
 
     padding: 13px 15px;
@@ -263,6 +331,19 @@ body {
     align-items: center;
 
     font-size: 14px;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.recent-item:hover {
+    background: var(--card-light);
+    border-color: var(--border-strong);
+}
+
+.recent-item span:first-child {
+    color: var(--text);
 }
 
 .recent-item span:last-child {
@@ -274,6 +355,7 @@ body {
     background: var(--card);
 
     border: 1px dashed var(--border);
+
     border-radius: 12px;
 
     padding: 20px;
@@ -281,6 +363,7 @@ body {
     text-align: center;
 
     color: var(--muted);
+
     font-size: 13px;
 }
 
@@ -292,7 +375,7 @@ body {
 footer {
     text-align: center;
 
-    color: #6f6673;
+    color: #64748b;
 
     font-size: 12px;
 
@@ -336,7 +419,7 @@ footer {
     }
 
     60% {
-        transform: scale(1.1);
+        transform: scale(1.08);
         opacity: 1;
     }
 
@@ -371,6 +454,10 @@ footer {
 
     .counter-card {
         padding: 20px 10px;
+    }
+
+    .counter-number {
+        font-size: 30px;
     }
 
 }
