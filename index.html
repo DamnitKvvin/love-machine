@@ -344,57 +344,39 @@
          FIREBASE
          ====================================================== -->
 
-    <script type="module">
+<script type="module">
 
-        import {
-            initializeApp
-        } from
-        "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import { initializeApp } 
+        from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 
-
-        import {
-            getFirestore
-        } from
-        "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+    import { getFirestore } 
+        from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 
-        const firebaseConfig = {
+    const firebaseConfig = {
 
-            apiKey:
-                "AIzaSyBRhA6k4hrgv6jqBuwsJeg0N0g4_I4FERY",
+        apiKey: "AIzaSyBRhA6k4hrgv6jqBuwsJeg0N0g4_I4FERY",
 
-            authDomain:
-                "our-little-love-machine.firebaseapp.com",
+        authDomain: "our-little-love-machine.firebaseapp.com",
 
-            projectId:
-                "our-little-love-machine",
+        projectId: "our-little-love-machine",
 
-            storageBucket:
-                "our-little-love-machine.firebasestorage.app",
+        storageBucket: "our-little-love-machine.firebasestorage.app",
 
-            messagingSenderId:
-                "730409296360",
+        messagingSenderId: "730409296360",
 
-            appId:
-                "1:730409296360:web:f57c64feef5a69059f045d"
+        appId: "1:730409296360:web:f57c64feef5a69059f045d"
 
-        };
+    };
 
 
-        const app =
-            initializeApp(
-                firebaseConfig
-            );
+    const app = initializeApp(firebaseConfig);
 
+    const db = getFirestore(app);
 
-        const db =
-            getFirestore(app);
+    window.loveMachineDB = db;
 
-
-        window.loveMachineDB =
-            db;
-
-    </script>
+</script>
 
 
     <!-- APPLICATION JAVASCRIPT -->
