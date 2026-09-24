@@ -103,23 +103,19 @@ function chooseIdentity(person) {
 // IDENTITY BUTTONS
 // ============================================================
 
-identityButtons.forEach(
-    button => {
+identityButtons.forEach(button => {
 
-        button.addEventListener(
-            "click",
-            () => {
+    button.onclick = function () {
 
-                const person =
-                    button.dataset.person;
+        const person = this.dataset.person;
 
-                chooseIdentity(person);
+        console.log("Identity selected:", person);
 
-            }
-        );
+        chooseIdentity(person);
 
-    }
-);
+    };
+
+});
 
 
 // ============================================================
