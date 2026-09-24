@@ -245,6 +245,11 @@ const recentQuery = query(
 );
 
 
+let knownActionIds = new Set();
+
+let firstSnapshot = true;
+
+
 onSnapshot(
     recentQuery,
 
@@ -252,21 +257,70 @@ onSnapshot(
 
         const actions = [];
 
+
         snapshot.forEach(
             doc => {
 
-                actions.push({
+                const action = {
                     id: doc.id,
                     ...doc.data()
-                });
+                };
+
+                actions.push(action);
+
+
+                // --------------------------------------------
+                // Detect newly received love
+                // --------------------------------------------
+
+                if (
+                    !firstSnapshot &&
+                    !knownActionIds.has(doc.id) &&
+                    action.sender !== currentUser
+                ) {
+
+                    const emoji =
+                        action.type === "hug"
+                            ? "🫂"
+                            : "💋";
+
+                    const actionName =
+                        action.type === "hug"
+                            ? "hug"
+                            : "kiss";
+
+
+                    showMessage(
+                        emoji,
+                        `${action.sender} sent you a ${actionName}!`,
+                        "Distance can't stop us. 💙"
+                    );
+
+                    createHeart(emoji);
+
+                }
 
             }
+        );
+
+
+        // --------------------------------------------
+        // Remember everything we've seen
+        // --------------------------------------------
+
+        knownActionIds = new Set(
+            actions.map(
+                action => action.id
+            )
         );
 
 
         updateCounters(actions);
 
         renderRecent(actions);
+
+
+        firstSnapshot = false;
 
     },
 
@@ -285,7 +339,6 @@ onSnapshot(
 
     }
 );
-
 
 // ============================================================
 // COUNTERS
