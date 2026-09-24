@@ -1,38 +1,49 @@
 /* ============================================================
    OUR LITTLE LOVE MACHINE
+   FIREBASE EDITION
    ============================================================ */
 
 
 /* ============================================================
-   SUPABASE CONFIGURATION
+   FIREBASE
    ============================================================ */
 
-// Replace these with your actual Supabase project values.
+import {
+    collection,
+    addDoc,
+    query,
+    orderBy,
+    limit,
+    onSnapshot,
+    serverTimestamp
+} from
+"https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
-const SUPABASE_URL =
-    "YOUR_SUPABASE_PROJECT_URL";
 
-const SUPABASE_KEY =
-    "YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY";
+const db =
+    window.loveMachineDB;
 
 
-const supabase =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
+const loveActions =
+    collection(
+        db,
+        "love_actions"
     );
 
 
 /* ============================================================
-   CONFIGURATION
+   PEOPLE
    ============================================================ */
 
 const PEOPLE = {
-    AIDAN: "Aidan",
-    BOYFRIEND: "Sam"
-};
 
-const TABLE_NAME = "love_actions";
+    AIDAN:
+        "Aidan",
+
+    SAM:
+        "Sammy"
+
+};
 
 
 /* ============================================================
@@ -40,40 +51,81 @@ const TABLE_NAME = "love_actions";
    ============================================================ */
 
 const identityOverlay =
-    document.getElementById("identityOverlay");
+    document.getElementById(
+        "identityOverlay"
+    );
+
 
 const identityButtons =
-    document.querySelectorAll(".identity-button");
+    document.querySelectorAll(
+        ".identity-button"
+    );
+
 
 const currentUserElement =
-    document.getElementById("currentUser");
+    document.getElementById(
+        "currentUser"
+    );
+
 
 const hugButton =
-    document.getElementById("hugButton");
+    document.getElementById(
+        "hugButton"
+    );
+
 
 const kissButton =
-    document.getElementById("kissButton");
+    document.getElementById(
+        "kissButton"
+    );
+
 
 const hugCountElement =
-    document.getElementById("hugCount");
+    document.getElementById(
+        "hugCount"
+    );
+
 
 const kissCountElement =
-    document.getElementById("kissCount");
+    document.getElementById(
+        "kissCount"
+    );
+
 
 const messageBox =
-    document.getElementById("messageBox");
+    document.getElementById(
+        "messageBox"
+    );
+
 
 const messageIcon =
-    document.getElementById("messageIcon");
+    document.getElementById(
+        "messageIcon"
+    );
+
 
 const messageTitle =
-    document.getElementById("messageTitle");
+    document.getElementById(
+        "messageTitle"
+    );
+
 
 const messageText =
-    document.getElementById("messageText");
+    document.getElementById(
+        "messageText"
+    );
+
 
 const recentActions =
-    document.getElementById("recentActions");
+    document.getElementById(
+        "recentActions"
+    );
+
+
+const floatingHearts =
+    document.getElementById(
+        "floatingHearts"
+    );
 
 
 /* ============================================================
@@ -81,7 +133,10 @@ const recentActions =
    ============================================================ */
 
 let currentUser =
-    localStorage.getItem("loveMachineUser");
+    localStorage.getItem(
+        "loveMachineUser"
+    );
+
 
 let actions = [];
 
@@ -96,82 +151,115 @@ if (currentUser) {
 
 } else {
 
-    identityOverlay.classList.remove("hidden");
+    identityOverlay.classList.remove(
+        "hidden"
+    );
 
 }
 
 
 identityButtons.forEach(button => {
 
-    button.addEventListener("click", () => {
+    button.addEventListener(
+        "click",
+        () => {
 
-        currentUser =
-            button.dataset.person;
+            currentUser =
+                button.dataset.person;
 
-        localStorage.setItem(
-            "loveMachineUser",
-            currentUser
-        );
 
-        initializeUser();
+            localStorage.setItem(
+                "loveMachineUser",
+                currentUser
+            );
 
-    });
+
+            initializeUser();
+
+        }
+    );
 
 });
 
 
-async function initializeUser() {
+/* ============================================================
+   INITIALIZE
+   ============================================================ */
+
+function initializeUser() {
 
     currentUserElement.textContent =
         currentUser;
 
-    identityOverlay.classList.add("hidden");
 
-    await loadActions();
+    identityOverlay.classList.add(
+        "hidden"
+    );
 
-    subscribeToActions();
+
+    startRealtimeListener();
 
 }
 
 
 /* ============================================================
-   LOAD ACTIONS
+   REALTIME DATABASE LISTENER
    ============================================================ */
 
-async function loadActions() {
+function startRealtimeListener() {
 
-    const { data, error } =
-        await supabase
-            .from(TABLE_NAME)
-            .select("*")
-            .order("created_at", {
-                ascending: false
-            });
+    const recentQuery =
+        query(
+            loveActions,
 
+            orderBy(
+                "createdAt",
+                "desc"
+            ),
 
-    if (error) {
-
-        console.error(
-            "Could not load love actions:",
-            error
+            limit(100)
         );
 
-        showMessage(
-            "⚠️",
-            "Something went wrong",
-            "I couldn't load our love history."
-        );
 
-        return;
+    onSnapshot(
+        recentQuery,
+        snapshot => {
 
-    }
+            actions =
+                snapshot.docs.map(
+                    document => ({
+
+                        id:
+                            document.id,
+
+                        ...document.data()
+
+                    })
+                );
 
 
-    actions = data || [];
+            updateCounters();
 
-    updateCounters();
+            renderRecent();
 
-    renderRecent();
+        },
+
+        error => {
+
+            console.error(
+                "Firebase error:",
+                error
+            );
+
+
+            showMessage(
+                "⚠️",
+                "Something went wrong",
+                "I couldn't connect to our love machine."
+            );
+
+        }
+    );
 
 }
 
@@ -180,22 +268,28 @@ async function loadActions() {
    HUG
    ============================================================ */
 
-hugButton.addEventListener("click", async () => {
+hugButton.addEventListener(
+    "click",
+    () => {
 
-    await sendLove("hug");
+        sendLove("hug");
 
-});
+    }
+);
 
 
 /* ============================================================
    KISS
    ============================================================ */
 
-kissButton.addEventListener("click", async () => {
+kissButton.addEventListener(
+    "click",
+    () => {
 
-    await sendLove("kiss");
+        sendLove("kiss");
 
-});
+    }
+);
 
 
 /* ============================================================
@@ -211,8 +305,6 @@ async function sendLove(type) {
     }
 
 
-    // Prevent accidental double-clicks.
-
     const button =
         type === "hug"
             ? hugButton
@@ -222,193 +314,70 @@ async function sendLove(type) {
     button.disabled = true;
 
 
-    const { data, error } =
-        await supabase
-            .from(TABLE_NAME)
-            .insert({
-                type: type,
-                sender: currentUser
-            })
-            .select()
-            .single();
+    try {
+
+        await addDoc(
+            loveActions,
+            {
+
+                type:
+                    type,
+
+                sender:
+                    currentUser,
+
+                createdAt:
+                    serverTimestamp()
+
+            }
+        );
 
 
-    button.disabled = false;
+        /*
+         * Firebase Realtime listeners will update
+         * the counters and recent activity.
+         */
 
 
-    if (error) {
+        if (type === "hug") {
+
+            showMessage(
+                "🫂",
+                "Hug sent!",
+                `A hug from ${currentUser}, delivered across the distance.`
+            );
+
+        } else {
+
+            showMessage(
+                "💋",
+                "Kiss sent!",
+                `A little kiss from ${currentUser}, delivered just for you.`
+            );
+
+        }
+
+
+        createFloatingHearts();
+
+    } catch (error) {
 
         console.error(
             "Could not send love:",
             error
         );
 
+
         showMessage(
             "⚠️",
-            "Couldn't send it",
-            "Something went wrong sending your love."
-        );
-
-        return;
-
-    }
-
-
-    /*
-       Add the newly-created action immediately.
-
-       Realtime will also notify this page, but we don't
-       want to wait for that notification before updating
-       the UI.
-    */
-
-    addActionToState(data);
-
-
-    /* ========================================================
-       SHOW MESSAGE
-       ======================================================== */
-
-    if (type === "hug") {
-
-        showMessage(
-            "🫂",
-            "Hug sent!",
-            `A hug from ${currentUser}, delivered across the distance.`
-        );
-
-    } else {
-
-        showMessage(
-            "💋",
-            "Kiss sent!",
-            `A little kiss from ${currentUser}, delivered just for you.`
+            "It didn't send",
+            "Something went wrong. Try again?"
         );
 
     }
 
-}
 
-
-/* ============================================================
-   ADD ACTION TO STATE
-   ============================================================ */
-
-function addActionToState(action) {
-
-    // Prevent duplicates.
-
-    const alreadyExists =
-        actions.some(
-            existingAction =>
-                existingAction.id === action.id
-        );
-
-
-    if (alreadyExists) {
-
-        return;
-
-    }
-
-
-    actions.unshift(action);
-
-
-    // Only keep the most recent 10 in the frontend.
-
-    actions =
-        actions.slice(0, 10);
-
-
-    updateCounters();
-
-    renderRecent();
-
-}
-
-
-/* ============================================================
-   REALTIME
-   ============================================================ */
-
-function subscribeToActions() {
-
-    supabase
-        .channel("love-actions")
-        .on(
-            "postgres_changes",
-            {
-                event: "INSERT",
-                schema: "public",
-                table: TABLE_NAME
-            },
-            payload => {
-
-                console.log(
-                    "New love received:",
-                    payload.new
-                );
-
-
-                addActionToState(
-                    payload.new
-                );
-
-
-                /*
-                   If somebody else sent it, show a
-                   slightly different message.
-                */
-
-                if (
-                    payload.new.sender !== currentUser
-                ) {
-
-                    if (
-                        payload.new.type === "hug"
-                    ) {
-
-                        showMessage(
-                            "🫂",
-                            "You got a hug!",
-                            `${payload.new.sender} just sent you a hug.`
-                        );
-
-                    } else {
-
-                        showMessage(
-                            "💋",
-                            "You got a kiss!",
-                            `${payload.new.sender} just sent you a kiss.`
-                        );
-
-                    }
-
-                }
-
-            }
-        )
-        .subscribe(
-            (status, error) => {
-
-                console.log(
-                    "Realtime status:",
-                    status
-                );
-
-
-                if (error) {
-
-                    console.error(
-                        "Realtime error:",
-                        error
-                    );
-
-                }
-
-            }
-        );
+    button.disabled = false;
 
 }
 
@@ -436,6 +405,7 @@ function updateCounters() {
     hugCountElement.textContent =
         hugs;
 
+
     kissCountElement.textContent =
         kisses;
 
@@ -455,23 +425,32 @@ function showMessage(
     messageIcon.textContent =
         icon;
 
+
     messageTitle.textContent =
         title;
+
 
     messageText.textContent =
         text;
 
-    messageBox.classList.remove("pop");
+
+    messageBox.classList.remove(
+        "pop"
+    );
+
 
     void messageBox.offsetWidth;
 
-    messageBox.classList.add("pop");
+
+    messageBox.classList.add(
+        "pop"
+    );
 
 }
 
 
 /* ============================================================
-   RECENT ACTIVITY
+   RECENT LOVE
    ============================================================ */
 
 function renderRecent() {
@@ -479,9 +458,23 @@ function renderRecent() {
     if (actions.length === 0) {
 
         recentActions.innerHTML = `
+
             <div class="empty-state">
-                No hugs or kisses yet...
+
+                <span>
+                    💙
+                </span>
+
+                <p>
+                    No hugs or kisses yet...
+                </p>
+
+                <small>
+                    Be the first to send some love.
+                </small>
+
             </div>
+
         `;
 
         return;
@@ -492,58 +485,76 @@ function renderRecent() {
     recentActions.innerHTML =
         actions
             .slice(0, 10)
-            .map(action => {
+            .map(
+                action => {
 
-                const icon =
-                    action.type === "hug"
-                        ? "🫂"
-                        : "💋";
-
-
-                const label =
-                    action.type === "hug"
-                        ? "sent a hug"
-                        : "sent a kiss";
+                    const icon =
+                        action.type === "hug"
+                            ? "🫂"
+                            : "💋";
 
 
-                return `
-                    <div class="recent-item">
+                    const label =
+                        action.type === "hug"
+                            ? "sent a hug"
+                            : "sent a kiss";
 
-                        <span>
-                            ${icon}
 
-                            <strong>
-                                ${escapeHTML(
-                                    action.sender
+                    return `
+
+                        <div class="recent-item">
+
+                            <span>
+
+                                ${icon}
+
+                                <strong>
+                                    ${escapeHTML(
+                                        action.sender
+                                    )}
+                                </strong>
+
+                                ${label}
+
+                            </span>
+
+
+                            <span>
+
+                                ${formatTimestamp(
+                                    action.createdAt
                                 )}
-                            </strong>
 
-                            ${label}
-                        </span>
+                            </span>
 
-                        <span>
-                            ${formatDate(
-                                action.created_at
-                            )}
-                        </span>
+                        </div>
 
-                    </div>
-                `;
+                    `;
 
-            })
+                }
+            )
             .join("");
 
 }
 
 
 /* ============================================================
-   DATE FORMAT
+   TIMESTAMP
    ============================================================ */
 
-function formatDate(timestamp) {
+function formatTimestamp(
+    timestamp
+) {
+
+    if (!timestamp) {
+
+        return "Just now";
+
+    }
+
 
     const date =
-        new Date(timestamp);
+        timestamp.toDate();
 
 
     const now =
@@ -557,33 +568,137 @@ function formatDate(timestamp) {
 
     if (sameDay) {
 
-        return date.toLocaleTimeString([], {
-            hour: "numeric",
-            minute: "2-digit"
-        });
+        return date.toLocaleTimeString(
+            [],
+            {
+
+                hour:
+                    "numeric",
+
+                minute:
+                    "2-digit"
+
+            }
+        );
 
     }
 
 
-    return date.toLocaleDateString([], {
-        month: "short",
-        day: "numeric"
-    });
+    return date.toLocaleDateString(
+        [],
+        {
+
+            month:
+                "short",
+
+            day:
+                "numeric"
+
+        }
+    );
 
 }
 
 
 /* ============================================================
-   BASIC HTML ESCAPING
+   FLOATING HEARTS
+   ============================================================ */
+
+function createFloatingHearts() {
+
+    const amount =
+        12;
+
+
+    for (
+        let i = 0;
+        i < amount;
+        i++
+    ) {
+
+        setTimeout(
+            () => {
+
+                const heart =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                heart.className =
+                    "floating-heart";
+
+
+                heart.textContent =
+                    "💙";
+
+
+                heart.style.left =
+                    `${Math.random() * 100}%`;
+
+
+                heart.style.animationDelay =
+                    `${Math.random() * 0.5}s`;
+
+
+                heart.style.fontSize =
+                    `${16 + Math.random() * 18}px`;
+
+
+                floatingHearts.appendChild(
+                    heart
+                );
+
+
+                setTimeout(
+                    () => {
+
+                        heart.remove();
+
+                    },
+                    4000
+                );
+
+            },
+            i * 80
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   HTML ESCAPING
    ============================================================ */
 
 function escapeHTML(value) {
 
     return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 
 }
