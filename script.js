@@ -14,40 +14,70 @@ import {
 // ============================================================
 
 const db = window.loveMachineDB;
-const loveActions = collection(db, "love_actions");
 
-
-// ============================================================
-// PEOPLE
-// ============================================================
-
-const PEOPLE = {
-    AIDAN: "Aidan",
-    SAM: "Sammy"
-};
-
-let currentUser = localStorage.getItem("loveMachineUser");
+const loveActions = collection(
+    db,
+    "love_actions"
+);
 
 
 // ============================================================
 // ELEMENTS
 // ============================================================
 
-const identityOverlay = document.getElementById("identityOverlay");
-const app = document.getElementById("app");
+const identityOverlay =
+    document.getElementById("identityOverlay");
 
-const hugButton = document.getElementById("hugButton");
-const kissButton = document.getElementById("kissButton");
+const app =
+    document.getElementById("app");
 
-const hugCountElement = document.getElementById("hugCount");
-const kissCountElement = document.getElementById("kissCount");
+const identityButtons =
+    document.querySelectorAll(".identity-button");
 
-const recentLove = document.getElementById("recentLove");
-const message = document.getElementById("message");
+const currentUserElement =
+    document.getElementById("currentUser");
+
+const hugButton =
+    document.getElementById("hugButton");
+
+const kissButton =
+    document.getElementById("kissButton");
+
+const hugCountElement =
+    document.getElementById("hugCount");
+
+const kissCountElement =
+    document.getElementById("kissCount");
+
+const messageBox =
+    document.getElementById("messageBox");
+
+const messageIcon =
+    document.getElementById("messageIcon");
+
+const messageTitle =
+    document.getElementById("messageTitle");
+
+const messageText =
+    document.getElementById("messageText");
+
+const recentActions =
+    document.getElementById("recentActions");
+
+const floatingHearts =
+    document.getElementById("floatingHearts");
 
 
 // ============================================================
-// CHOOSE IDENTITY
+// CURRENT USER
+// ============================================================
+
+let currentUser =
+    localStorage.getItem("loveMachineUser");
+
+
+// ============================================================
+// IDENTITY SELECTION
 // ============================================================
 
 function chooseIdentity(person) {
@@ -59,7 +89,11 @@ function chooseIdentity(person) {
         currentUser
     );
 
+    currentUserElement.textContent =
+        currentUser;
+
     identityOverlay.classList.add("hidden");
+
     app.classList.remove("hidden");
 
 }
@@ -69,28 +103,41 @@ function chooseIdentity(person) {
 // IDENTITY BUTTONS
 // ============================================================
 
-document
-    .getElementById("aidanButton")
-    ?.addEventListener(
-        "click",
-        () => chooseIdentity(PEOPLE.AIDAN)
-    );
+identityButtons.forEach(
+    button => {
 
-document
-    .getElementById("samButton")
-    ?.addEventListener(
-        "click",
-        () => chooseIdentity(PEOPLE.SAM)
-    );
+        button.addEventListener(
+            "click",
+            () => {
+
+                const person =
+                    button.dataset.person;
+
+                chooseIdentity(person);
+
+            }
+        );
+
+    }
+);
 
 
 // ============================================================
-// RESTORE IDENTITY
+// RESTORE PREVIOUS IDENTITY
 // ============================================================
 
-if (currentUser === PEOPLE.AIDAN || currentUser === PEOPLE.SAM) {
+if (
+    currentUser === "Aidan" ||
+    currentUser === "Sammy"
+) {
+
+    currentUserElement.textContent =
+        currentUser === "Sammy"
+            ? "Sam"
+            : currentUser;
 
     identityOverlay.classList.add("hidden");
+
     app.classList.remove("hidden");
 
 }
@@ -102,10 +149,22 @@ if (currentUser === PEOPLE.AIDAN || currentUser === PEOPLE.SAM) {
 
 async function sendLove(type) {
 
-    if (!currentUser) return;
+    if (!currentUser) {
+
+        showMessage(
+            "💙",
+            "Wait a second!",
+            "Choose who you are first."
+        );
+
+        return;
+
+    }
+
 
     hugButton.disabled = true;
     kissButton.disabled = true;
+
 
     try {
 
@@ -118,17 +177,29 @@ async function sendLove(type) {
             }
         );
 
-        showMessage(
-            type === "hug"
-                ? "🫂 Hug sent!"
-                : "💋 Kiss sent!"
-        );
 
-        createHeart(
-            type === "hug"
-                ? "🫂"
-                : "💋"
-        );
+        if (type === "hug") {
+
+            showMessage(
+                "🫂",
+                "Hug sent!",
+                `You just sent Sam a hug. 💙`
+            );
+
+            createHeart("🫂");
+
+        } else {
+
+            showMessage(
+                "💋",
+                "Kiss sent!",
+                `You just sent Sam a kiss. 💙`
+            );
+
+            createHeart("💋");
+
+        }
+
 
     } catch (error) {
 
@@ -138,15 +209,16 @@ async function sendLove(type) {
         );
 
         showMessage(
-            "Something went wrong 😭"
+            "😭",
+            "Oops!",
+            "Something went wrong sending that."
         );
 
-    } finally {
-
-        hugButton.disabled = false;
-        kissButton.disabled = false;
-
     }
+
+
+    hugButton.disabled = false;
+    kissButton.disabled = false;
 
 }
 
@@ -179,12 +251,13 @@ const recentQuery = query(
 
 onSnapshot(
     recentQuery,
-    (snapshot) => {
+
+    snapshot => {
 
         const actions = [];
 
         snapshot.forEach(
-            (doc) => {
+            doc => {
 
                 actions.push({
                     id: doc.id,
@@ -201,7 +274,7 @@ onSnapshot(
 
     },
 
-    (error) => {
+    error => {
 
         console.error(
             "Firestore listener error:",
@@ -209,7 +282,9 @@ onSnapshot(
         );
 
         showMessage(
-            "Couldn't load our love history 😭"
+            "😭",
+            "Couldn't load our love",
+            "Check the browser console for details."
         );
 
     }
@@ -222,17 +297,25 @@ onSnapshot(
 
 function updateCounters(actions) {
 
-    const hugs = actions.filter(
-        action => action.type === "hug"
-    ).length;
-
-    const kisses = actions.filter(
-        action => action.type === "kiss"
-    ).length;
+    const hugs =
+        actions.filter(
+            action =>
+                action.type === "hug"
+        ).length;
 
 
-    hugCountElement.textContent = hugs;
-    kissCountElement.textContent = kisses;
+    const kisses =
+        actions.filter(
+            action =>
+                action.type === "kiss"
+        ).length;
+
+
+    hugCountElement.textContent =
+        hugs;
+
+    kissCountElement.textContent =
+        kisses;
 
 }
 
@@ -243,14 +326,28 @@ function updateCounters(actions) {
 
 function renderRecent(actions) {
 
-    const recent = actions.slice(0, 10);
+    const recent =
+        actions.slice(0, 10);
+
 
     if (recent.length === 0) {
 
-        recentLove.innerHTML = `
+        recentActions.innerHTML = `
+
             <div class="empty-state">
-                No love sent yet. Be the first. 💙
+
+                <span>💙</span>
+
+                <p>
+                    No hugs or kisses yet...
+                </p>
+
+                <small>
+                    Be the first to send some love.
+                </small>
+
             </div>
+
         `;
 
         return;
@@ -258,69 +355,80 @@ function renderRecent(actions) {
     }
 
 
-    recentLove.innerHTML = recent.map(
-        action => {
+    recentActions.innerHTML =
+        recent.map(
+            action => {
 
-            const emoji =
-                action.type === "hug"
-                    ? "🫂"
-                    : "💋";
-
-            const actionName =
-                action.type === "hug"
-                    ? "sent a hug"
-                    : "sent a kiss";
-
-            const time =
-                formatTimestamp(
-                    action.createdAt
-                );
+                const emoji =
+                    action.type === "hug"
+                        ? "🫂"
+                        : "💋";
 
 
-            return `
-                <div class="recent-item">
+                const actionName =
+                    action.type === "hug"
+                        ? "sent a hug"
+                        : "sent a kiss";
 
-                    <div class="recent-icon">
-                        ${emoji}
+
+                const time =
+                    formatTimestamp(
+                        action.createdAt
+                    );
+
+
+                return `
+
+                    <div class="recent-item">
+
+                        <div class="recent-icon">
+                            ${emoji}
+                        </div>
+
+                        <div class="recent-text">
+
+                            <strong>
+                                ${escapeHTML(
+                                    action.sender
+                                )}
+                            </strong>
+
+                            <span>
+                                ${actionName}
+                            </span>
+
+                        </div>
+
+                        <div class="recent-time">
+                            ${time}
+                        </div>
+
                     </div>
 
-                    <div class="recent-text">
+                `;
 
-                        <strong>
-                            ${escapeHTML(action.sender)}
-                        </strong>
-
-                        <span>
-                            ${actionName}
-                        </span>
-
-                    </div>
-
-                    <div class="recent-time">
-                        ${time}
-                    </div>
-
-                </div>
-            `;
-
-        }
-    ).join("");
+            }
+        ).join("");
 
 }
 
 
 // ============================================================
-// TIME FORMAT
+// FORMAT TIME
 // ============================================================
 
 function formatTimestamp(timestamp) {
 
     if (!timestamp) {
+
         return "Just now";
+
     }
 
 
-    const date = timestamp.toDate();
+    const date =
+        timestamp.toDate();
+
 
     return date.toLocaleString(
         [],
@@ -339,18 +447,33 @@ function formatTimestamp(timestamp) {
 // MESSAGE
 // ============================================================
 
-function showMessage(text) {
+function showMessage(
+    icon,
+    title,
+    text
+) {
 
-    message.textContent = text;
+    messageIcon.textContent =
+        icon;
 
-    message.classList.add("show");
+    messageTitle.textContent =
+        title;
+
+    messageText.textContent =
+        text;
+
+    messageBox.classList.add("show");
 
 
     setTimeout(
         () => {
-            message.classList.remove("show");
+
+            messageBox.classList.remove(
+                "show"
+            );
+
         },
-        2500
+        3000
     );
 
 }
@@ -362,20 +485,31 @@ function showMessage(text) {
 
 function createHeart(symbol) {
 
-    const heart = document.createElement("div");
+    const heart =
+        document.createElement("div");
 
-    heart.className = "floating-heart";
+    heart.className =
+        "floating-heart";
 
-    heart.textContent = symbol;
+    heart.textContent =
+        symbol;
+
 
     heart.style.left =
         `${Math.random() * 90 + 5}%`;
 
-    document.body.appendChild(heart);
+
+    floatingHearts.appendChild(
+        heart
+    );
 
 
     setTimeout(
-        () => heart.remove(),
+        () => {
+
+            heart.remove();
+
+        },
         2500
     );
 
@@ -391,7 +525,8 @@ function escapeHTML(value) {
     const div =
         document.createElement("div");
 
-    div.textContent = value;
+    div.textContent =
+        value;
 
     return div.innerHTML;
 
