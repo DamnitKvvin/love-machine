@@ -1,21 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Our Little Love Machine 💙</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
 
+
 <body>
+
+
+    <!-- ======================================================
+         BACKGROUND EFFECTS
+         ====================================================== -->
+
+    <div class="background-glow"></div>
+
+    <div
+        class="floating-hearts"
+        id="floatingHearts"
+    ></div>
+
 
     <!-- ======================================================
          IDENTITY SCREEN
          ====================================================== -->
 
-    <div class="identity-overlay" id="identityOverlay">
+    <div
+        class="identity-overlay"
+        id="identityOverlay"
+    >
 
         <div class="identity-card">
 
@@ -23,7 +50,9 @@
                 💙
             </div>
 
-            <h1>Our Little Love Machine</h1>
+            <h1>
+                Our Little Love Machine
+            </h1>
 
             <p>
                 Before we start sending some love...
@@ -31,22 +60,34 @@
                 who are you?
             </p>
 
+
             <div class="identity-buttons">
 
                 <button
                     class="identity-button"
                     data-person="Aidan"
                 >
+
                     <span>💙</span>
-                    Aidan
+
+                    <span>
+                        Aidan
+                    </span>
+
                 </button>
+
 
                 <button
                     class="identity-button"
-                    data-person="Sam"
+                    data-person="Sammy"
                 >
+
                     <span>💙</span>
-                    Boyfriend
+
+                    <span>
+                        Sam
+                    </span>
+
                 </button>
 
             </div>
@@ -56,15 +97,22 @@
     </div>
 
 
+
     <!-- ======================================================
-         MAIN APP
+         APPLICATION
          ====================================================== -->
 
-    <main class="app" id="app">
+    <main
+        class="app"
+        id="app"
+    >
 
-        <!-- HEADER -->
 
-        <section class="header">
+        <!-- ==================================================
+             HEADER
+             ================================================== -->
+
+        <header class="header">
 
             <div class="heart-icon">
                 💙
@@ -79,70 +127,84 @@
                 a little love.
             </p>
 
+
             <div class="current-user">
+
                 Sending love as
+
                 <strong id="currentUser">
                     —
                 </strong>
+
             </div>
 
-        </section>
+        </header>
 
 
-        <!-- COUNTERS -->
+
+        <!-- ==================================================
+             COUNTERS
+             ================================================== -->
 
         <section class="counters">
 
+
             <div class="counter-card">
 
-                <span class="counter-icon">
+                <div class="counter-icon">
                     🫂
-                </span>
+                </div>
 
-                <span
+                <div
                     class="counter-number"
                     id="hugCount"
                 >
                     0
-                </span>
+                </div>
 
-                <span class="counter-label">
+                <div class="counter-label">
                     Hugs Sent
-                </span>
+                </div>
 
             </div>
 
 
             <div class="counter-card">
 
-                <span class="counter-icon">
+                <div class="counter-icon">
                     💋
-                </span>
+                </div>
 
-                <span
+                <div
                     class="counter-number"
                     id="kissCount"
                 >
                     0
-                </span>
+                </div>
 
-                <span class="counter-label">
+                <div class="counter-label">
                     Kisses Sent
-                </span>
+                </div>
 
             </div>
+
 
         </section>
 
 
-        <!-- ACTION BUTTONS -->
+
+        <!-- ==================================================
+             LOVE BUTTONS
+             ================================================== -->
 
         <section class="actions">
+
 
             <button
                 class="love-button hug-button"
                 id="hugButton"
             >
+
                 <span class="button-icon">
                     🫂
                 </span>
@@ -150,6 +212,7 @@
                 <span>
                     Send A Hug
                 </span>
+
             </button>
 
 
@@ -157,6 +220,7 @@
                 class="love-button kiss-button"
                 id="kissButton"
             >
+
                 <span class="button-icon">
                     💋
                 </span>
@@ -164,12 +228,17 @@
                 <span>
                     Send A Kiss
                 </span>
+
             </button>
+
 
         </section>
 
 
-        <!-- MESSAGE -->
+
+        <!-- ==================================================
+             MESSAGE
+             ================================================== -->
 
         <section
             class="message-box"
@@ -194,41 +263,148 @@
         </section>
 
 
-        <!-- RECENT ACTIVITY -->
+
+        <!-- ==================================================
+             RECENT LOVE
+             ================================================== -->
 
         <section class="recent">
 
-            <div class="section-title">
-                Recent Love 💌
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        OUR STORY
+                    </span>
+
+                    <h2>
+                        Recent Love
+                    </h2>
+
+                </div>
+
+                <span class="section-icon">
+                    💌
+                </span>
+
             </div>
 
+
             <div
-                id="recentActions"
                 class="recent-actions"
+                id="recentActions"
             >
 
                 <div class="empty-state">
-                    No hugs or kisses yet...
+
+                    <span>
+                        💙
+                    </span>
+
+                    <p>
+                        No hugs or kisses yet...
+                    </p>
+
+                    <small>
+                        Be the first to send some love.
+                    </small>
+
                 </div>
 
             </div>
 
+
         </section>
 
 
-        <!-- FOOTER -->
+
+        <!-- ==================================================
+             FOOTER
+             ================================================== -->
 
         <footer>
 
+            <div class="footer-heart">
+                💙
+            </div>
+
             Made with a little bit of code
-            and a lot of love. 💙
+            and a lot of love.
 
         </footer>
+
 
     </main>
 
 
-    <script src="script.js"></script>
+
+    <!-- ======================================================
+         FIREBASE
+         ====================================================== -->
+
+    <script type="module">
+
+        import {
+            initializeApp
+        } from
+        "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+
+        import {
+            getFirestore
+        } from
+        "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+
+        const firebaseConfig = {
+
+            apiKey:
+                "AIzaSyBRhA6k4hrgv6jqBuwsJeg0N0g4_I4FERY",
+
+            authDomain:
+                "our-little-love-machine.firebaseapp.com",
+
+            projectId:
+                "our-little-love-machine",
+
+            storageBucket:
+                "our-little-love-machine.firebasestorage.app",
+
+            messagingSenderId:
+                "730409296360",
+
+            appId:
+                "1:730409296360:web:f57c64feef5a69059f045d"
+
+        };
+
+
+        const app =
+            initializeApp(
+                firebaseConfig
+            );
+
+
+        const db =
+            getFirestore(app);
+
+
+        window.loveMachineDB =
+            db;
+
+    </script>
+
+
+    <!-- APPLICATION JAVASCRIPT -->
+
+    <script
+        type="module"
+        src="script.js"
+    ></script>
+
 
 </body>
+
 </html>
